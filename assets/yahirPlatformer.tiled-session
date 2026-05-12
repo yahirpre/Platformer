@@ -2,6 +2,7 @@
     "activeFile": "level-test.tmj",
     "expandedProjectPaths": [
     ],
+    "exportAsImage.includeBackgroundColor": true,
     "fileStates": {
         "level-test.tmj": {
             "scale": 1,
@@ -15,6 +16,7 @@
             "scaleInDock": 2
         }
     },
+    "frame.defaultDuration": 100,
     "last.imagePath": "C:/Users/yahir/OneDrive/Documents/YahirPlatformer/assets",
     "map.height": 30,
     "map.lastUsedFormat": "json",
