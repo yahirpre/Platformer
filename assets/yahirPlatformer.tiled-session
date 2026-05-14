@@ -5,11 +5,11 @@
     "exportAsImage.includeBackgroundColor": true,
     "fileStates": {
         "level-test.tmj": {
-            "scale": 1,
+            "scale": 0.9741,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 180,
-                "y": 104.5
+                "x": 409.60886972590095,
+                "y": 127.81028641823224
             }
         },
         "level-test.tmj#monochrome_tilemap_transparent_packed": {
