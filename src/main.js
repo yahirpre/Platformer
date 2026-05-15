@@ -29,13 +29,14 @@ let config = {
             }
         }
     },
-    width: 1000,
-    height: 750,
+    //CANVAS SIZE (W * H): 20 TILES * 15
+    width: 20 * 16 * 3, //SCALE = 3
+    height: 15 * 16 * 3,
     scene: [Load, Platformer]
 }
 
 var cursors;
-const SCALE = 2.0;
-var my = {sprite: {}, text: {}};
+const SCALE = 3.0;
+var my = {sprite: {}, text: {}}; 
 
 const game = new Phaser.Game(config);

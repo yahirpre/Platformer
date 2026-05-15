@@ -178,6 +178,15 @@
                         }]
                 }, 
                 {
+                 "id":122,
+                 "properties":[
+                        {
+                         "name":"collides",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
                  "id":135,
                  "properties":[
                         {
@@ -250,6 +259,15 @@
                         }]
                 }, 
                 {
+                 "id":166,
+                 "properties":[
+                        {
+                         "name":"collides",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
                  "id":175,
                  "properties":[
                         {
@@ -278,6 +296,15 @@
                 }, 
                 {
                  "id":178,
+                 "properties":[
+                        {
+                         "name":"collides",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":183,
                  "properties":[
                         {
                          "name":"collides",
