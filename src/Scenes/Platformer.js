@@ -5,37 +5,37 @@ class Platformer extends Phaser.Scene {
 
     init() {
         // variables and settings
-        this.ACCELERATION = 500;
-        this.DRAG = 700;    // DRAG < ACCELERATION = icy slide
+        this.ACCELERATION = 700;
+        this.DRAG = 2000;    // DRAG < ACCELERATION = icy slide
         this.physics.world.gravity.y = 1500;
-        this.JUMP_VELOCITY = -900;
+        this.JUMP_VELOCITY = -500;
     }
 
     create() {
         // Create a new tilemap game object which uses 18x18 pixel tiles, and is
         // 45 tiles wide and 25 tiles tall.
-        this.map = this.add.tilemap("platformer-level-1", 18, 18, 45, 25);
+        this.map = this.add.tilemap("level-1", 16, 16, 60, 15);
 
         // Add a tileset to the map
         // First parameter: name we gave the tileset in Tiled
         // Second parameter: key for the tilesheet (from this.load.image in Load.js)
-        this.tileset = this.map.addTilesetImage("tilemap_packed", "tilemap_tiles");
+        this.tileset = this.map.addTilesetImage("monochrome_tilemap_transparent_packed", "tilemap_tiles");
 
         // Create a layer
-        this.groundLayer = this.map.createLayer("Ground-n-Platforms", this.tileset, 0, 0);
-        this.groundLayer.setScale(2.0);
+        this.platformLayer = this.map.createLayer("Platforms", this.tileset, 0, 0);
+        this.platformLayer.setScale(SCALE);
 
         // Make it collidable
-        this.groundLayer.setCollisionByProperty({
+        this.platformLayer.setCollisionByProperty({
             collides: true
         });
 
         // set up player avatar
-        my.sprite.player = this.physics.add.sprite(100, game.config.height/3, "platformer_characters", "tile_0000.png").setScale(SCALE)
+        my.sprite.player = this.physics.add.sprite(20, 20, "idle").setScale(SCALE)
         my.sprite.player.setCollideWorldBounds(true);
 
         // Enable collision handling
-        this.physics.add.collider(my.sprite.player, this.groundLayer);
+        this.physics.add.collider(my.sprite.player, this.platformLayer);
 
         // set up Phaser-provided cursor key input
         cursors = this.input.keyboard.createCursorKeys();
@@ -46,6 +46,14 @@ class Platformer extends Phaser.Scene {
             this.physics.world.debugGraphic.clear()
         }, this);
 
+        //on mouse down, flip gravity
+        this.input.on('pointerdown', function (pointer)
+        {
+
+            this.flipGravity();
+
+        }, this);
+
     }
 
     update() {
@@ -53,14 +61,14 @@ class Platformer extends Phaser.Scene {
             // TODO: have the player accelerate to the left
             my.sprite.player.setAccelerationX(-this.ACCELERATION);
             
-            my.sprite.player.resetFlip();
+            my.sprite.player.setFlip(true, false);
             my.sprite.player.anims.play('walk', true);
 
         } else if(cursors.right.isDown) {
             // TODO: have the player accelerate to the right
             my.sprite.player.setAccelerationX(this.ACCELERATION);
 
-            my.sprite.player.setFlip(true, false);
+            my.sprite.player.resetFlip();
             my.sprite.player.anims.play('walk', true);
 
         } else {
@@ -83,5 +91,11 @@ class Platformer extends Phaser.Scene {
             my.sprite.player.setVelocityY(this.JUMP_VELOCITY);
 
         }
+    }
+
+    flipGravity(){
+        this.physics.world.gravity.y *= -1;
+        my.sprite.player.toggleFlipY();
+
     }
 }

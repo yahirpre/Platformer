@@ -6,10 +6,10 @@
     "fileStates": {
         "level-test.tmj": {
             "scale": 0.9741,
-            "selectedLayer": 0,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 409.60886972590095,
-                "y": 127.81028641823224
+                "x": 409.60886972590083,
+                "y": 127.29699209526746
             }
         },
         "level-test.tmj#monochrome_tilemap_transparent_packed": {
@@ -27,6 +27,7 @@
         "level-test.tmj"
     ],
     "project": "yahirPlatformer.tiled-project",
+    "property.type": "bool",
     "recentFiles": [
         "level-test.tmj"
     ],
