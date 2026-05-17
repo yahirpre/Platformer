@@ -15,6 +15,7 @@ class Platformer extends Phaser.Scene {
         this.flipAbility = true; //flipAbility indicates if players are able to flip gravity
         this.lives = 3;
         this.gameRunning = true;
+        this.canDoubleJump = true;
 
         this.text = {};
     }
@@ -150,6 +151,10 @@ class Platformer extends Phaser.Scene {
         });
     }
 
+    //TODO:
+    //add heart UI for lives
+    //sound effects
+    //particles
     update(){
         console.log(this.map.heightInPixels*SCALE + my.sprite.player.displayHeight/2);
         if(this.gameRunning){
@@ -202,6 +207,11 @@ class Platformer extends Phaser.Scene {
                 my.sprite.player.setVelocityY(this.JUMP_VELOCITY);
 
             }
+            //check if player canDoubleJump
+            else if(this.canDoubleJump && Phaser.Input.Keyboard.JustDown(this.spaceKey)){
+                my.sprite.player.setVelocityY(this.JUMP_VELOCITY);
+                this.canDoubleJump = false; //player has double jumped, set false now
+            }
 
             //handle TERMINAL_VELOCITY
             if(!this.gravityFlipped && my.sprite.player.body.velocity.y > this.TERMINAL_VELOCITY){
@@ -211,9 +221,10 @@ class Platformer extends Phaser.Scene {
                 my.sprite.player.setVelocityY(-this.TERMINAL_VELOCITY);
             }
 
-            //check if player is blocked, if so, reset flipAbility
+            //check if player is blocked, if so, reset flipAbility and canDoubleJump
             if(this.playerBlocked()){
                 this.flipAbility = true;
+                this.canDoubleJump = true;
             }
         }
     }
