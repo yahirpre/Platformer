@@ -13,7 +13,7 @@ class Platformer extends Phaser.Scene {
         this.MAX_SPEED = 200;
         this.TERMINAL_VELOCITY = 400;
         this.flipAbility = true; //flipAbility indicates if players are able to flip gravity
-        this.lives = 1;
+        this.lives = 3;
         this.gameRunning = true;
 
         this.text = {};
@@ -146,21 +146,12 @@ class Platformer extends Phaser.Scene {
 
         //add spike overlap
         this.physics.add.overlap(my.sprite.player, this.spikeGroup, (obj1, obj2) => {
-            this.lives--; //decrement lives
-
-            //reset player
-            my.sprite.player.setPosition(80,400);
-            my.sprite.player.setVelocity(0);
-
-            //reset gravity
-            if(this.gravityFlipped){
-                this.flipGravity();
-            }
-            
+            this.playerDead();
         });
     }
 
     update(){
+        console.log(this.map.heightInPixels*SCALE + my.sprite.player.displayHeight/2);
         if(this.gameRunning){
             if(this.AKey.isDown){
                 //have the player accelerate to the left
@@ -186,12 +177,19 @@ class Platformer extends Phaser.Scene {
 
             //check is no lives left
             if(this.lives <= 0){
-                this.gameOver();
+                this.endScreen("Game Over!", 3)
+            }
+
+            //if player out of bounds
+            if(my.sprite.player.y > this.map.heightInPixels*SCALE + my.sprite.player.displayHeight/2
+                || my.sprite.player.y < -my.sprite.player.displayHeight/2
+            ){
+                this.playerDead();
             }
 
             //restart scene
             if(Phaser.Input.Keyboard.JustDown(this.RKey)){
-                this.restartLevel();
+                this.endScreen("Restarting!", 1);
             }
 
             // player jump
@@ -229,6 +227,19 @@ class Platformer extends Phaser.Scene {
         my.sprite.player.toggleFlipY(); //flip player sprite
     }
 
+    playerDead(){
+        this.lives--; //decrement lives
+
+            //reset player
+            my.sprite.player.setPosition(80,400);
+            my.sprite.player.setVelocity(0);
+
+            //reset gravity
+            if(this.gravityFlipped){
+                this.flipGravity();
+            }
+    }
+
     //checks if the players foot is blocked
     playerBlocked(){
 
@@ -239,7 +250,9 @@ class Platformer extends Phaser.Scene {
         return my.sprite.player.body.blocked.down;
     }
 
-    gameOver(){
+    //text: text that will be displayed on screen 
+    //time: time (in secs) until the scene restarts
+    endScreen(text, time){
         this.gameRunning = false;
 
         //prevent movement
@@ -253,29 +266,9 @@ class Platformer extends Phaser.Scene {
         graphics.fillRect(0,0,this.map.widthInPixels*SCALE,this.map.heightInPixels*SCALE);
 
         //my.sprite.blackoutScreen.setDepth(100); //set in front of everything
-        my.text.gameOver = this.add.bitmapText(game.config.width/2, game.config.height/2,"kenneySquare", "Game Over!").setOrigin(0.5);
+        my.text.gameOver = this.add.bitmapText(game.config.width/2, game.config.height/2,"kenneySquare", text).setOrigin(0.5);
         my.text.gameOver.setScrollFactor(0);
-        this.time.delayedCall(3000, () =>{this.scene.restart();}, [], this);
-    }
-
-
-    restartLevel(){
-        this.gameRunning = false;
-
-        //prevent movement
-        this.physics.world.gravity.y = 0; 
-        my.sprite.player.setAcceleration(0);
-        my.sprite.player.setVelocity(0);
-
-        //draw black background (cover everything)
-        let graphics = this.add.graphics();
-        graphics.fillStyle(0x000000,1);
-        graphics.fillRect(0,0,this.map.widthInPixels*SCALE,this.map.heightInPixels*SCALE);
-
-        //my.sprite.blackoutScreen.setDepth(100); //set in front of everything
-        my.text.gameOver = this.add.bitmapText(game.config.width/2, game.config.height/2,"kenneySquare", "Restarting!").setOrigin(0.5);
-        my.text.gameOver.setScrollFactor(0);
-        this.time.delayedCall(1000, () =>{this.scene.restart();}, [], this);
+        this.time.delayedCall(time*1000, () =>{this.scene.restart();}, [], this);
     }
 
 }
