@@ -13,7 +13,8 @@ class Platformer extends Phaser.Scene {
         this.MAX_SPEED = 200;
         this.TERMINAL_VELOCITY = 400;
         this.flipAbility = true; //flipAbility indicates if players are able to flip gravity
-        this.lives
+        this.lives = 1;
+        this.gameRunning = true;
 
         this.text = {};
     }
@@ -145,61 +146,77 @@ class Platformer extends Phaser.Scene {
 
         //add spike overlap
         this.physics.add.overlap(my.sprite.player, this.spikeGroup, (obj1, obj2) => {
-            this.scene.restart();
+            this.lives--; //decrement lives
+
+            //reset player
+            my.sprite.player.setPosition(80,400);
+            my.sprite.player.setVelocity(0);
+
+            //reset gravity
+            if(this.gravityFlipped){
+                this.flipGravity();
+            }
+            
         });
     }
 
-
     update(){
-        if(this.AKey.isDown){
-            //have the player accelerate to the left
-            my.sprite.player.setAccelerationX(-this.ACCELERATION);
-            
-            my.sprite.player.setFlipX(true);
-            my.sprite.player.anims.play('walk', true);
+        if(this.gameRunning){
+            if(this.AKey.isDown){
+                //have the player accelerate to the left
+                my.sprite.player.setAccelerationX(-this.ACCELERATION);
+                
+                my.sprite.player.setFlipX(true);
+                my.sprite.player.anims.play('walk', true);
 
-        } else if(this.DKey.isDown) {
-            // have the player accelerate to the right
-            my.sprite.player.setAccelerationX(this.ACCELERATION);
+            } else if(this.DKey.isDown) {
+                // have the player accelerate to the right
+                my.sprite.player.setAccelerationX(this.ACCELERATION);
 
-            my.sprite.player.setFlipX(false);
-            my.sprite.player.anims.play('walk', true);
+                my.sprite.player.setFlipX(false);
+                my.sprite.player.anims.play('walk', true);
 
-        } else {
-            // set acceleration to 0 and have DRAG take over
-            my.sprite.player.setAccelerationX(0);
-            my.sprite.player.setDragX(this.DRAG);
-            
-            my.sprite.player.anims.play('idle');
-        }
+            } else {
+                // set acceleration to 0 and have DRAG take over
+                my.sprite.player.setAccelerationX(0);
+                my.sprite.player.setDragX(this.DRAG);
+                
+                my.sprite.player.anims.play('idle');
+            }
 
-        //restart scene
-        if(Phaser.Input.Keyboard.JustDown(this.RKey)){
-            this.scene.start("platformerScene");
-        }
+            //check is no lives left
+            if(this.lives <= 0){
+                this.gameOver();
+            }
 
-        // player jump
-        // note that we need body.blocked rather than body.touching b/c the former applies to tilemap tiles and the latter to the "ground"
-        if(!this.playerBlocked()) {
-            my.sprite.player.anims.play('jump');
-        }
-        if(this.playerBlocked() && Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
-            // TODO: set a Y velocity to have the player "jump" upwards (negative Y direction)
-            my.sprite.player.setVelocityY(this.JUMP_VELOCITY);
+            //restart scene
+            if(Phaser.Input.Keyboard.JustDown(this.RKey)){
+                this.scene.start("platformerScene");
+            }
 
-        }
+            // player jump
+            // note that we need body.blocked rather than body.touching b/c the former applies to tilemap tiles and the latter to the "ground"
+            if(!this.playerBlocked()) {
+                my.sprite.player.anims.play('jump');
+            }
+            if(this.playerBlocked() && Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
+                // TODO: set a Y velocity to have the player "jump" upwards (negative Y direction)
+                my.sprite.player.setVelocityY(this.JUMP_VELOCITY);
 
-        //handle TERMINAL_VELOCITY
-        if(!this.gravityFlipped && my.sprite.player.body.velocity.y > this.TERMINAL_VELOCITY){
-            my.sprite.player.setVelocityY(this.TERMINAL_VELOCITY);
-        }
-        else if(this.gravityFlipped && my.sprite.player.body.velocity.y < -this.TERMINAL_VELOCITY){
-            my.sprite.player.setVelocityY(-this.TERMINAL_VELOCITY);
-        }
+            }
 
-        //check if player is blocked, if so, reset flipAbility
-        if(this.playerBlocked()){
-            this.flipAbility = true;
+            //handle TERMINAL_VELOCITY
+            if(!this.gravityFlipped && my.sprite.player.body.velocity.y > this.TERMINAL_VELOCITY){
+                my.sprite.player.setVelocityY(this.TERMINAL_VELOCITY);
+            }
+            else if(this.gravityFlipped && my.sprite.player.body.velocity.y < -this.TERMINAL_VELOCITY){
+                my.sprite.player.setVelocityY(-this.TERMINAL_VELOCITY);
+            }
+
+            //check if player is blocked, if so, reset flipAbility
+            if(this.playerBlocked()){
+                this.flipAbility = true;
+            }
         }
     }
 
@@ -220,5 +237,22 @@ class Platformer extends Phaser.Scene {
             return my.sprite.player.body.blocked.up;
         }
         return my.sprite.player.body.blocked.down;
+    }
+
+    gameOver(){
+        this.gameRunning = false;
+
+        //prevent movement
+        my.sprite.player.setAcceleration(0);
+
+        //draw black background (cover everything)
+        let graphics = this.add.graphics();
+        graphics.fillStyle(0x000000,1);
+        graphics.fillRect(0,0,this.map.widthInPixels*SCALE,this.map.heightInPixels*SCALE);
+
+        //my.sprite.blackoutScreen.setDepth(100); //set in front of everything
+        my.text.gameOver = this.add.bitmapText(game.config.width/2, game.config.height/2,"kenneySquare", "Game Over!").setOrigin(0.5);
+        my.text.gameOver.setScrollFactor(0);
+        this.time.delayedCall(3000, () =>{this.scene.restart();}, [], this);
     }
 }
