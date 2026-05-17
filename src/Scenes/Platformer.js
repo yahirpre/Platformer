@@ -191,7 +191,7 @@ class Platformer extends Phaser.Scene {
 
             //restart scene
             if(Phaser.Input.Keyboard.JustDown(this.RKey)){
-                this.scene.start("platformerScene");
+                this.restartLevel();
             }
 
             // player jump
@@ -243,7 +243,9 @@ class Platformer extends Phaser.Scene {
         this.gameRunning = false;
 
         //prevent movement
+        this.physics.world.gravity.y = 0; 
         my.sprite.player.setAcceleration(0);
+        my.sprite.player.setVelocity(0);
 
         //draw black background (cover everything)
         let graphics = this.add.graphics();
@@ -255,4 +257,25 @@ class Platformer extends Phaser.Scene {
         my.text.gameOver.setScrollFactor(0);
         this.time.delayedCall(3000, () =>{this.scene.restart();}, [], this);
     }
+
+
+    restartLevel(){
+        this.gameRunning = false;
+
+        //prevent movement
+        this.physics.world.gravity.y = 0; 
+        my.sprite.player.setAcceleration(0);
+        my.sprite.player.setVelocity(0);
+
+        //draw black background (cover everything)
+        let graphics = this.add.graphics();
+        graphics.fillStyle(0x000000,1);
+        graphics.fillRect(0,0,this.map.widthInPixels*SCALE,this.map.heightInPixels*SCALE);
+
+        //my.sprite.blackoutScreen.setDepth(100); //set in front of everything
+        my.text.gameOver = this.add.bitmapText(game.config.width/2, game.config.height/2,"kenneySquare", "Restarting!").setOrigin(0.5);
+        my.text.gameOver.setScrollFactor(0);
+        this.time.delayedCall(1000, () =>{this.scene.restart();}, [], this);
+    }
+
 }
