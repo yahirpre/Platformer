@@ -10,7 +10,8 @@ class Load extends Phaser.Scene {
         //this.load.atlas("platformer_characters", "tilemap-characters-packed.png", "tilemap-characters-packed.json");
 
         // Load tilemap information
-        this.load.image("tilemap_tiles", "monochrome_tilemap_transparent_packed.png");                         // Packed tilemap
+        this.load.image("tilemap_tiles", "monochrome_tilemap_transparent_packed.png");
+        this.load.image("tilemap_tiles_black", "monochrome_tilemap_packed.png");                           // Packed tilemap
         this.load.tilemapTiledJSON("level-1", "level-test.tmj");   // Tilemap in JSON
 
         //load sprite images
@@ -18,6 +19,14 @@ class Load extends Phaser.Scene {
         this.load.image("walk2", "player_walk02.png");
         this.load.image("idle", "player_idle.png");
         this.load.image("jump", "player_jump.png");
+
+        //audio
+        this.load.audio("gameOver", "spaceTrash3.ogg");
+        this.load.audio("jump", "tone1.ogg");
+        this.load.audio("flip", "phaserUp1.ogg");
+        this.load.audio("death", "lowDown.ogg");
+        this.load.audio("levelComplete", "powerUp1.ogg");
+        this.load.audio("gemGrab", "powerUp6.ogg");
 
         this.load.spritesheet("tilemap_sheet", "monochrome_tilemap_transparent_packed.png", {
             frameWidth: 16,

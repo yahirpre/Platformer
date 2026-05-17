@@ -16,11 +16,13 @@ class Platformer extends Phaser.Scene {
         this.lives = 3;
         this.gameRunning = true;
         this.canDoubleJump = true;
+        this.levelCompleted = false;
 
         this.text = {};
     }
 
     create() {
+        this.sound.setVolume(0.25);
         // Create a new tilemap game object which uses 18x18 pixel tiles, and is
         // 45 tiles wide and 25 tiles tall.
         this.map = this.add.tilemap("level-1", 16, 16, 60, 15);
@@ -29,18 +31,26 @@ class Platformer extends Phaser.Scene {
         // First parameter: name we gave the tileset in Tiled
         // Second parameter: key for the tilesheet (from this.load.image in Load.js)
         this.tileset = this.map.addTilesetImage("monochrome_tilemap_transparent_packed", "tilemap_tiles");
+        this.tilesetBlack = this.map.addTilesetImage("monochrome_tilemap_packed", "tilemap_tiles_black");
 
-        // layers
-        this.platformLayer = this.map.createLayer("Platforms", this.tileset, 0, 0);
+        //BACKGROUNDS
+        // this.bg1Layer = this.map.createLayer("Background1", this.tileset, 0, 0);
+        // this.bg1Layer.setScale(SCALE);
+        // this.bg1Layer.setAlpha(0.25);
+        // this.bg1Layer.setScrollFactor(0.25); //parallax effect
+
+
+        this.bg2Layer = this.map.createLayer("Background2", this.tilesetBlack, 0, 0);
+        this.bg2Layer.setScale(SCALE);
+        this.bg2Layer.setAlpha(0.33);
+        this.bg2Layer.setScrollFactor(0.5); //parallax effect
+
+        // platform layers
+        this.platformLayer = this.map.createLayer("Platforms", this.tilesetBlack, 0, 0);
         this.platformLayer.setScale(SCALE);
 
         this.decorLayer = this.map.createLayer("Decor", this.tileset, 0, 0);
         this.decorLayer.setScale(SCALE);
-
-        this.bgLayer = this.map.createLayer("Background", this.tileset, 0, 0);
-        this.bgLayer.setScale(SCALE);
-        this.bgLayer.setAlpha(0.1);
-        this.bgLayer.setScrollFactor(0.33); //parallax effect
 
 
         //make gems
@@ -125,17 +135,20 @@ class Platformer extends Phaser.Scene {
         //on mouse down, flip gravity if adble to
         this.input.on('pointerdown', function (pointer)
         {
-
             if(this.flipAbility){
+                this.sound.play("flip");
                 this.flipGravity();
                 this.flipAbility = false;
             }
+
 
         }, this);
 
         //text
         my.text.gemCount = this.add.bitmapText(10, 10 ,"kenneySquare", `Gems: ${this.grabbedGems} / ${this.totalGems}`);
         my.text.gemCount.setScrollFactor(0); //stops text from scrolling
+        my.text.lives = this.add.bitmapText(10, 40 ,"kenneySquare", `Lives: ${this.lives}`);
+        my.text.lives.setScrollFactor(0); //stops text from scrolling
 
         //add gem overlap
         this.physics.add.overlap(my.sprite.player, this.gemGroup, (obj1, obj2) => {
@@ -143,6 +156,7 @@ class Platformer extends Phaser.Scene {
             this.grabbedGems++; //increment grabbedGems
             //update text
             my.text.gemCount.setText(`Gems: ${this.grabbedGems} / ${this.totalGems}`);
+            this.sound.play("gemGrab");
         });
 
         //add spike overlap
@@ -152,7 +166,6 @@ class Platformer extends Phaser.Scene {
     }
 
     //TODO:
-    //add heart UI for lives
     //sound effects
     //particles
     update(){
@@ -180,7 +193,8 @@ class Platformer extends Phaser.Scene {
             }
 
             //check is no lives left
-            if(this.lives <= 0){
+            if(this.lives < 0){
+                this.sound.play("gameOver");
                 this.endScreen("Game Over!", 3)
             }
 
@@ -192,8 +206,10 @@ class Platformer extends Phaser.Scene {
             }
 
             //level complete
-            if(this.grabbedGems == this.totalGems){
+            if(this.grabbedGems == this.totalGems && !this.levelCompleted){
+                this.levelCompleted = true; //prevents this block from being executed more than once
                 this.time.delayedCall(2000, () => {
+                    this.sound.play("levelComplete");
                     this.endScreen("Level Completed!", 3);
                 })
             }
@@ -209,14 +225,16 @@ class Platformer extends Phaser.Scene {
                 my.sprite.player.anims.play('jump');
             }
             if(this.playerBlocked() && Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
-                // TODO: set a Y velocity to have the player "jump" upwards (negative Y direction)
+                // set a Y velocity to have the player "jump" upwards (negative Y direction)
                 my.sprite.player.setVelocityY(this.JUMP_VELOCITY);
+                this.sound.play("jump");
 
             }
             //check if player canDoubleJump
             else if(this.canDoubleJump && Phaser.Input.Keyboard.JustDown(this.spaceKey)){
                 my.sprite.player.setVelocityY(this.JUMP_VELOCITY);
                 this.canDoubleJump = false; //player has double jumped, set false now
+                this.sound.play("jump");
             }
 
             //handle TERMINAL_VELOCITY
@@ -245,16 +263,23 @@ class Platformer extends Phaser.Scene {
     }
 
     playerDead(){
+
+        //play sound if not the final death (lives > 0)
+        if(this.lives > 0) this.sound.play("death",{
+            rate: 1.5
+        });
+
         this.lives--; //decrement lives
+        my.text.lives.setText(`Lives: ${this.lives}`); //update text
 
-            //reset player
-            my.sprite.player.setPosition(80,400);
-            my.sprite.player.setVelocity(0);
+        //reset player
+        my.sprite.player.setPosition(80,400);
+        my.sprite.player.setVelocity(0);
 
-            //reset gravity
-            if(this.gravityFlipped){
-                this.flipGravity();
-            }
+        //reset gravity
+        if(this.gravityFlipped){
+            this.flipGravity();
+        }
     }
 
     //checks if the players foot is blocked
