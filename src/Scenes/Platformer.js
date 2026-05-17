@@ -156,7 +156,6 @@ class Platformer extends Phaser.Scene {
     //sound effects
     //particles
     update(){
-        console.log(this.map.heightInPixels*SCALE + my.sprite.player.displayHeight/2);
         if(this.gameRunning){
             if(this.AKey.isDown){
                 //have the player accelerate to the left
@@ -190,6 +189,13 @@ class Platformer extends Phaser.Scene {
                 || my.sprite.player.y < -my.sprite.player.displayHeight/2
             ){
                 this.playerDead();
+            }
+
+            //level complete
+            if(this.grabbedGems == this.totalGems){
+                this.time.delayedCall(2000, () => {
+                    this.endScreen("Level Completed!", 3);
+                })
             }
 
             //restart scene
