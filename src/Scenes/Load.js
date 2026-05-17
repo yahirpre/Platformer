@@ -18,6 +18,13 @@ class Load extends Phaser.Scene {
         this.load.image("walk2", "player_walk02.png");
         this.load.image("idle", "player_idle.png");
         this.load.image("jump", "player_jump.png");
+
+        this.load.spritesheet("tilemap_sheet", "monochrome_tilemap_transparent_packed.png", {
+            frameWidth: 16,
+            frameHeight: 16
+        });
+
+        this.load.bitmapFont("kenneySquare", "kenneySquare_0.png", "kenneySquare.fnt");
     }
 
     create() {

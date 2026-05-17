@@ -13,6 +13,9 @@ class Platformer extends Phaser.Scene {
         this.MAX_SPEED = 200;
         this.TERMINAL_VELOCITY = 400;
         this.flipAbility = true; //flipAbility indicates if players are able to flip gravity
+        this.lives
+
+        this.text = {};
     }
 
     create() {
@@ -32,27 +35,68 @@ class Platformer extends Phaser.Scene {
         this.decorLayer = this.map.createLayer("Decor", this.tileset, 0, 0);
         this.decorLayer.setScale(SCALE);
 
-        this.spikeLayer = this.map.createLayer("Spikes", this.tileset, 0, 0);
-        this.spikeLayer.setScale(SCALE);
+        this.bgLayer = this.map.createLayer("Background", this.tileset, 0, 0);
+        this.bgLayer.setScale(SCALE);
+        this.bgLayer.setAlpha(0.1);
+        this.bgLayer.setScrollFactor(0.33); //parallax effect
 
-        this.gemLayer = this.map.createLayer("Gems", this.tileset, 0, 0);
-        this.gemLayer.setScale(SCALE);
 
-        // Make it collidable
+        //make gems
+        this.gems = this.map.createFromObjects("Gems", {
+            name: "Gem",
+            key: "tilemap_sheet",
+            frame: 82
+        });
+        this.physics.world.enable(this.gems, Phaser.Physics.Arcade.STATIC_BODY);
+        //scale up and reposition
+        this.gems.forEach(gem => {
+            gem.setScale(SCALE);
+
+            // scale position to match scaled map
+            gem.x *= SCALE;
+            gem.y *= SCALE;
+
+            gem.body.updateFromGameObject();
+        });
+        this.gemGroup = this.add.group(this.gems);
+        this.totalGems = this.gemGroup.getLength();
+        this.grabbedGems = 0;
+
+        //make Spikes
+        this.spikes = this.map.createFromObjects("Spikes", {
+            name: "Spike",
+            key: "tilemap_sheet", 
+            frame: 166
+        });
+        this.physics.world.enable(this.spikes, Phaser.Physics.Arcade.STATIC_BODY);
+        //scale up and reposition
+        this.spikes.forEach(spike => {
+            spike.setScale(SCALE);
+
+            // scale position to match scaled map
+            spike.x *= SCALE;
+            spike.y *= SCALE;
+            spike.body.updateFromGameObject();
+
+            //scale down hitbox
+            spike.body.setSize(spike.width*SCALE*0.5, spike.height*SCALE*0.5, true);
+            spike.body.setOffset(4*SCALE,4*SCALE);
+        });
+
+        this.spikeGroup = this.add.group(this.spikes);
+
+
+        // Make layers collidable
         this.platformLayer.setCollisionByProperty({
             collides: true
         });
 
-        this.spikeLayer.setCollisionByProperty({
-            collides: true
-        });
-
-        //set world bounds
-        this.physics.world.setBounds(0, -50, this.map.widthInPixels * SCALE, this.map.heightInPixels * SCALE + 50);
-
         // set up player avatar
         my.sprite.player = this.physics.add.sprite(80, 400, "idle").setScale(SCALE)
         my.sprite.player.setCollideWorldBounds(true);
+
+        //set world boundsd
+        this.physics.world.setBounds(0, -50, this.map.widthInPixels * SCALE, this.map.heightInPixels * SCALE + 100);
 
         //set max velocity
         my.sprite.player.setMaxVelocity(this.MAX_SPEED, 10000);
@@ -61,7 +105,8 @@ class Platformer extends Phaser.Scene {
         this.physics.add.collider(my.sprite.player, this.platformLayer);
 
         //set up camera
-        this.cameras.main.setBounds(0, 0, 2880, 720);
+        this.cameras.main.setBounds(0, 0, this.map.widthInPixels*SCALE, this.map.heightInPixels*SCALE);
+        this.cameras.main.startFollow(my.sprite.player, true, 0.1, 0);
 
         //keys
         this.AKey = this.input.keyboard.addKey("A"); //left
@@ -86,13 +131,27 @@ class Platformer extends Phaser.Scene {
 
         }, this);
 
-        console.log(SCALE);
+        //text
+        my.text.gemCount = this.add.bitmapText(10, 10 ,"kenneySquare", `Gems: ${this.grabbedGems} / ${this.totalGems}`);
+        my.text.gemCount.setScrollFactor(0); //stops text from scrolling
 
+        //add gem overlap
+        this.physics.add.overlap(my.sprite.player, this.gemGroup, (obj1, obj2) => {
+            obj2.destroy(); // remove gem on overlap
+            this.grabbedGems++; //increment grabbedGems
+            //update text
+            my.text.gemCount.setText(`Gems: ${this.grabbedGems} / ${this.totalGems}`);
+        });
+
+        //add spike overlap
+        this.physics.add.overlap(my.sprite.player, this.spikeGroup, (obj1, obj2) => {
+            this.scene.restart();
+        });
     }
 
-    update() {
-        this.cameras.main.centerOn(my.sprite.player.x, game.config.height/2);
-        if(this.AKey.isDown) {
+
+    update(){
+        if(this.AKey.isDown){
             //have the player accelerate to the left
             my.sprite.player.setAccelerationX(-this.ACCELERATION);
             
