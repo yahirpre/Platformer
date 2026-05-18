@@ -21,6 +21,11 @@ class Platformer extends Phaser.Scene {
         this.text = {};
     }
 
+    preload() {
+        // Load the animated tiles plugin
+        this.load.scenePlugin('AnimatedTiles', './lib/AnimatedTiles.js', 'animatedTiles', 'animatedTiles');
+    }
+
     create() {
         this.sound.setVolume(0.25);
         // Create a new tilemap game object which uses 18x18 pixel tiles, and is
@@ -73,6 +78,21 @@ class Platformer extends Phaser.Scene {
         this.gemGroup = this.add.group(this.gems);
         this.totalGems = this.gemGroup.getLength();
         this.grabbedGems = 0;
+        //animations for gems
+        this.anims.create({
+            key: 'gemAnim', // Animation key
+            frames: this.anims.generateFrameNumbers('tilemap_sheet', 
+                {
+                    prefix: '',
+                    suffix: '',
+                    zeroPad: 0,
+                    frames: [82,62]
+                    // outputArray: [], // Append frames into this array
+                }),
+            frameRate: 3,  // Higher is faster
+            repeat: -1      // Loop the animation indefinitely
+        });
+        this.anims.play('gemAnim', this.gems);
 
         //make Spikes
         this.spikes = this.map.createFromObjects("Spikes", {
@@ -163,6 +183,8 @@ class Platformer extends Phaser.Scene {
         this.physics.add.overlap(my.sprite.player, this.spikeGroup, (obj1, obj2) => {
             this.playerDead();
         });
+
+        this.animatedTiles.init(this.map);
     }
 
     //TODO:

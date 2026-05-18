@@ -39,7 +39,7 @@
             "scaleInEditor": 1
         }
     },
-    "frame.defaultDuration": 100,
+    "frame.defaultDuration": 1000,
     "last.imagePath": "C:/Users/Yahir Prenger/Downloads/kenney_1-bit-platformer-pack/Tilemap",
     "map.height": 30,
     "map.lastUsedFormat": "json",
