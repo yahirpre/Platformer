@@ -186,10 +186,10 @@ class Platformer extends Phaser.Scene {
             frame: 0,
             blendMode: 'ADD',
             random: true,
-            scale: {start: 0.1, end: 0.01},
+            scale: {start: 0.05, end: 0.01},
             frequency: 100,
-            lifespan: 500,
-            alpha: {start: 1, end: 0}
+            lifespan: 1000,
+            alpha: {start: 1, end: 0.5}
         });
         this.walkVFX.stop();
 
