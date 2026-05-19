@@ -146,6 +146,8 @@ class Platformer extends Phaser.Scene {
         this.RKey = this.input.keyboard.addKey("R"); //restart scene
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE); //jump
 
+        this.physics.world.drawDebug = false;
+        this.physics.world.debugGraphic.clear();
         // debug key listener (assigned to Q key)
         this.input.keyboard.on('keydown-Q', () => {
             this.physics.world.drawDebug = this.physics.world.drawDebug ? false : true
