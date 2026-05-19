@@ -151,6 +151,7 @@ class Platformer extends Phaser.Scene {
             this.physics.world.drawDebug = this.physics.world.drawDebug ? false : true
             this.physics.world.debugGraphic.clear()
         }, this);
+        this.physics.world.debugGraphic.clear();
 
         //on mouse down, flip gravity if adble to
         this.input.on('pointerdown', function (pointer)
@@ -163,6 +164,20 @@ class Platformer extends Phaser.Scene {
 
 
         }, this);
+
+        //particles
+        this.jumpVFX = this.add.particles(0, 0, "circleParticle", {
+            frame: 0,
+            blendMode: 'ADD',
+            random: true,
+            scale: {min: 0.05, max: 0.1},
+            frequency: 50,
+            lifespan: {min: 100, max: 500},
+            gravityY: this.physics.world.gravity.y/10,
+            alpha: {min: 0.1, max: 1}, 
+            duration: 500
+        });
+       // this.jumpVFX.stop();
 
         //text
         my.text.gemCount = this.add.bitmapText(10, 10 ,"kenneySquare", `Gems: ${this.grabbedGems} / ${this.totalGems}`);
@@ -214,6 +229,10 @@ class Platformer extends Phaser.Scene {
                 my.sprite.player.anims.play('idle');
             }
 
+            //particles
+            this.jumpVFX.startFollow(my.sprite.player, 0, 0, false);
+
+
             //check is no lives left
             if(this.lives < 0){
                 this.sound.play("gameOver");
@@ -248,12 +267,14 @@ class Platformer extends Phaser.Scene {
             }
             if(this.playerBlocked() && Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
                 // set a Y velocity to have the player "jump" upwards (negative Y direction)
+                this.jumpVFX.start();
                 my.sprite.player.setVelocityY(this.JUMP_VELOCITY);
                 this.sound.play("jump");
 
             }
             //check if player canDoubleJump
             else if(this.canDoubleJump && Phaser.Input.Keyboard.JustDown(this.spaceKey)){
+                this.jumpVFX.start();
                 my.sprite.player.setVelocityY(this.JUMP_VELOCITY);
                 this.canDoubleJump = false; //player has double jumped, set false now
                 this.sound.play("jump");
@@ -277,6 +298,9 @@ class Platformer extends Phaser.Scene {
 
     flipGravity(){
         this.gravityFlipped = !this.gravityFlipped; //toggle gravityFlipped boolean
+
+        //flip vfx gravity
+        this.jumpVFX.gravityY *= -1;
 
         this.physics.world.gravity.y *= -1; //flip gravity
         this.JUMP_VELOCITY *= -1; //flip jump velocity

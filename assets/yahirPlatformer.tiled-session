@@ -1,5 +1,5 @@
 {
-    "activeFile": "level-test.tmj",
+    "activeFile": "",
     "expandedProjectPaths": [
         "."
     ],
@@ -24,11 +24,11 @@
             "scaleInDock": 1
         },
         "level-test.tmj": {
-            "scale": 2,
+            "scale": 4.2926,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 299,
-                "y": 194.5
+                "x": 34.47793877836277,
+                "y": 192.07473326189253
             }
         },
         "level-test.tmj#monochrome_tilemap_packed": {
@@ -36,7 +36,7 @@
         },
         "level-test.tmj#monochrome_tilemap_transparent_packed": {
             "scaleInDock": 1,
-            "scaleInEditor": 1
+            "scaleInEditor": 3.03
         }
     },
     "frame.defaultDuration": 1000,

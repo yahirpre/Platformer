@@ -20,6 +20,9 @@ class Load extends Phaser.Scene {
         this.load.image("idle", "player_idle.png");
         this.load.image("jump", "player_jump.png");
 
+        //particles
+        this.load.image("circleParticle", "circle_05.png");
+
         //audio
         this.load.audio("gameOver", "spaceTrash3.ogg");
         this.load.audio("jump", "tone1.ogg");
