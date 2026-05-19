@@ -168,16 +168,46 @@ class Platformer extends Phaser.Scene {
         //particles
         this.jumpVFX = this.add.particles(0, 0, "circleParticle", {
             frame: 0,
+            blendMode: 'ADD', 
+            radial: true,
+            angle: {min: 0, max: 180},
+            random: true,
+            scale: {start: 0.1, end: 0.01},
+            frequency: 1,
+            maxAliveParticles: 10,
+            lifespan: 500,
+            speed: 50,
+            alpha: {start: 1, end: 0.5}, 
+            duration: 100
+        });
+        this.jumpVFX.stop();
+
+        this.walkVFX = this.add.particles(0, 0, "circleParticle", {
+            frame: 0,
             blendMode: 'ADD',
             random: true,
-            scale: {min: 0.05, max: 0.1},
-            frequency: 50,
-            lifespan: {min: 100, max: 500},
-            gravityY: this.physics.world.gravity.y/10,
-            alpha: {min: 0.1, max: 1}, 
-            duration: 500
+            scale: {start: 0.1, end: 0.01},
+            frequency: 100,
+            lifespan: 500,
+            alpha: {start: 1, end: 0}
         });
-       // this.jumpVFX.stop();
+        this.walkVFX.stop();
+
+        this.gemVFX = this.add.particles(0, 0, "starParticle", {
+            frame: 0,
+            blendMode: 'ADD',
+            random: true,
+            radial: true,
+            angle: {min: 0, max: 360},
+            scale: 0.075,
+            frequency: 1,
+            maxAliveParticles: 20,
+            lifespan: 500,
+            speed: 100,
+            alpha: {start: 0.5, end: 0}, 
+            duration: 100
+        });
+        this.gemVFX.stop();
 
         //text
         my.text.gemCount = this.add.bitmapText(10, 10 ,"kenneySquare", `Gems: ${this.grabbedGems} / ${this.totalGems}`);
@@ -192,6 +222,7 @@ class Platformer extends Phaser.Scene {
             //update text
             my.text.gemCount.setText(`Gems: ${this.grabbedGems} / ${this.totalGems}`);
             this.sound.play("gemGrab");
+            this.gemVFX.start();
         });
 
         //add spike overlap
@@ -213,6 +244,7 @@ class Platformer extends Phaser.Scene {
                 
                 my.sprite.player.setFlipX(true);
                 my.sprite.player.anims.play('walk', true);
+                this.walkVFX.start();
 
             } else if(this.DKey.isDown) {
                 // have the player accelerate to the right
@@ -220,6 +252,7 @@ class Platformer extends Phaser.Scene {
 
                 my.sprite.player.setFlipX(false);
                 my.sprite.player.anims.play('walk', true);
+                this.walkVFX.start();
 
             } else {
                 // set acceleration to 0 and have DRAG take over
@@ -227,10 +260,13 @@ class Platformer extends Phaser.Scene {
                 my.sprite.player.setDragX(this.DRAG);
                 
                 my.sprite.player.anims.play('idle');
+                this.walkVFX.stop();
             }
 
             //particles
             this.jumpVFX.startFollow(my.sprite.player, 0, 0, false);
+            this.gemVFX.startFollow(my.sprite.player, 0, 0, false);
+            this.walkVFX.startFollow(my.sprite.player, 0, 0, false);
 
 
             //check is no lives left
@@ -298,9 +334,6 @@ class Platformer extends Phaser.Scene {
 
     flipGravity(){
         this.gravityFlipped = !this.gravityFlipped; //toggle gravityFlipped boolean
-
-        //flip vfx gravity
-        this.jumpVFX.gravityY *= -1;
 
         this.physics.world.gravity.y *= -1; //flip gravity
         this.JUMP_VELOCITY *= -1; //flip jump velocity

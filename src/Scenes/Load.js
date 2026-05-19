@@ -22,6 +22,7 @@ class Load extends Phaser.Scene {
 
         //particles
         this.load.image("circleParticle", "circle_05.png");
+        this.load.image("starParticle", "star_07.png");
 
         //audio
         this.load.audio("gameOver", "spaceTrash3.ogg");
